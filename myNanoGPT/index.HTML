@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI-Powered Text Generation Portal</title>
+<style>
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 0 20px;
+    background: #f7f6fb;
+    color: #1a1a2e;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  p.subtitle {
+    color: #555;
+    margin-bottom: 32px;
+  }
+  select, button {
+    font-size: 1rem;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+  }
+  button {
+    background: #6c5ce7;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #5a4bd1;
+  }
+  button:disabled {
+    background: #b3aee0;
+    cursor: not-allowed;
+  }
+  #output-box {
+    margin-top: 28px;
+    padding: 20px;
+    min-height: 120px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  #output-box.loading {
+    color: #999;
+    font-style: italic;
+  }
+  #output-box.error {
+    color: #c0392b;
+  }
+</style>
+</head>
+<body>
+
+  <h1>AI-Powered Text Generation Portal</h1>
+  <p class="subtitle">Generate text from a nanoGPT model trained on a custom corpus.</p>
+
+  <select id="dataset-select">
+    <option value="movies">Movie Dialogue</option>
+  </select>
+  <button id="generate-btn" onclick="generateText()">Generate</button>
+
+  <div id="output-box">Generated text will appear here.</div>
+
+  <script>
+    async function generateText() {
+      const btn = document.getElementById('generate-btn');
+      const output = document.getElementById('output-box');
+      const dataset = document.getElementById('dataset-select').value;
+
+      btn.disabled = true;
+      output.className = 'loading';
+      output.textContent = 'Generating...';
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataset: dataset })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Something went wrong');
+        }
+
+        output.className = '';
+        output.textContent = data.text;
+      } catch (err) {
+        output.className = 'error';
+        output.textContent = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+
+</body>
+</html>
